@@ -1,16 +1,28 @@
+import { nanoid } from "nanoid";
 import React, { useState } from "react";
 import socketIOClient from 'socket.io-client';
 
 function UploadImage() {
 
-  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const handleUpload = () => {
-    if (!image)
+    if (!imagePreview)
       return;
 
     const socket = socketIOClient('ws://localhost:8080');
-    socket.emit('uploadImage', image);
+    // socket.emit('uploadImage', image);
+    socket.emit('uploadImage', {
+      key: `image-${nanoid()}`,
+      imageData: imagePreview,
+      x: 0,
+      y: 0,
+      width: 128,
+      height: 128,
+      rotation: 0,
+      opacity: 1,
+    });
+    setImagePreview(null);
   }
 
   const handleImageSelect = (event) => {
@@ -19,9 +31,7 @@ function UploadImage() {
     const reader = new FileReader();
 
     reader.onloadend = () => {
-      setImage(reader.result);
-      const socket = socketIOClient('ws://localhost:8080');
-      socket.emit('previewImage', image);
+      setImagePreview(reader.result);
     }
     
     if (file) {
@@ -31,9 +41,11 @@ function UploadImage() {
 
   return (
     <div className='uploadImageDiv'>
-      <input type='file' onChange={handleImageSelect}/>
-      {image && <img src={image} alt="uploaded" height="32"/>}
-      <button onClick={handleUpload}>Upload</button>
+      <input className="bttn" type='file' onChange={handleImageSelect} />
+      <div height='128'>
+        {imagePreview && <img src={imagePreview} alt='uploaded' height='128' />}
+      </div>
+      <input className="bttn" type='button' onClick={handleUpload} value='Upload' />
     </div>
   )
 }
