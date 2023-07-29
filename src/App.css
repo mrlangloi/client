@@ -1,38 +1,86 @@
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  width: 4096px;
+  height: 4096px;
+  
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
+}
+
+.canvasDiv {
+  width: 4096px;
+  height: 2160px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+}
+
+.imageDiv {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+}
+
+.twitchStreamDiv {
+  border: 2px solid;
+  border-radius: 5px;
+  margin: 0px;
+  padding: 0.25em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.twitchStream {
+  opacity: 80%;
+}
+
+.resizable {
+  border-radius: 0.75rem;
+  padding: 20px;
+  margin: 1rem;
+  background-color: #29e;
   color: white;
+  font-size: 20px;
+  font-family: sans-serif;
+  overflow: hidden;
+
+  touch-action: none;
+
+  /* This makes things *much* easier */
+  box-sizing: border-box;
 }
 
-.App-link {
-  color: #61dafb;
+.draggable {
+  width: 25%;
+  min-height: 6.5em;
+  margin: 1rem 0 0 1rem;
+  background-color: #29e;
+  color: white;
+  border-radius: 0.75em;
+  padding: 4%;
+  touch-action: none;
+  user-select: none;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.resize-drag {
+  padding: 0px;
+  color: white;
+  font-size: 20px;
+  font-family: sans-serif;
+
+  touch-action: none;
+
+  /* This makes things *much* easier */
+  box-sizing: border-box;
+}
+
+.resize-border {
+  border: 2px solid;
+  border-radius: 8px;
+  border-color: lightgray;
 }
