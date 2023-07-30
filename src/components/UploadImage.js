@@ -29,18 +29,6 @@ function UploadImage() {
       console.log(`Error with uploading image: ${error}`);
     };
     
-
-    // const socket = socketIOClient('ws://localhost:8080');
-    // socket.emit('uploadImage', {
-    //   key: `image-${nanoid()}`,
-    //   imageData: imagePreview,
-    //   x: 0,
-    //   y: 0,
-    //   width: 128,
-    //   height: 128,
-    //   rotation: 0,
-    //   opacity: 1,
-    // });
     setImagePreview(null);
   }
 
