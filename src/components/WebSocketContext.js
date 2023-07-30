@@ -1,11 +1,11 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect } from 'react';
 import socketIOClient from 'socket.io-client';
 
 const WebSocketContext = createContext();
 
 const WebSocketProvider = ({ children }) => {
   
-  const [socket, setSocket] = useState(socketIOClient('ws://localhost:8080'));
+  const socket = socketIOClient('ws://localhost:8080');
 
   // Connect to the websocket when the component mounts
   useEffect(() => {
@@ -14,7 +14,7 @@ const WebSocketProvider = ({ children }) => {
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [socket]);
 
   return (
     <WebSocketContext.Provider value={socket}>

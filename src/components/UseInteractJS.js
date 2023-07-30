@@ -6,16 +6,17 @@ import { WebSocketContext } from './WebSocketContext';
 function UseInteractJS(id) {
   const elementRef = useRef(null);
   const imageID = useRef(id);
+  const lastClickedID = useRef(null);
 
   const socket = useContext(WebSocketContext);
 
-  var lastClickedID = '';
-
   // Handles the draggable and resizable behavior of the image
   useEffect(() => {
-    const element = elementRef.current;
 
-    const interactInstance = interact(element).draggable({
+    elementRef.current = document.querySelector(`#${imageID.current}`);
+
+    const interactInstance = interact('.resize-drag')
+    .draggable({
       // Customize the draggable behavior here if needed
       onmove: async (event) => {
         const target = event.target;
@@ -89,10 +90,62 @@ function UseInteractJS(id) {
       ],
 
     }).on('mousedown', (event) => {
-      event.preventDefault();
-      lastClickedID = imageID.current;
-      console.log(`Last clicked image ID: ${lastClickedID}`);
+      lastClickedID.current = imageID.current;
+      console.log(`Last clicked image ID: ${lastClickedID.current}`);
     });
+
+    const rotateInstance = interact('.rotation-handle')
+    .draggable({
+      onstart: function (event) {
+        const box = event.target.parentElement;
+        const rect = box.getBoundingClientRect();
+
+        // store the center as the element has css `transform-origin: center center`
+        box.setAttribute('data-center-x', rect.left + rect.width / 2);
+        box.setAttribute('data-center-y', rect.top + rect.height / 2);
+        // get the angle of the element when the drag starts
+        box.setAttribute('data-angle', getDragAngle(event));
+      },
+      onmove: function (event) {
+        const box = event.target.parentElement;
+
+        const x = (parseFloat(box.getAttribute('data-x')) || 0)
+        const y = (parseFloat(box.getAttribute('data-y')) || 0)
+
+        const angle = getDragAngle(event);
+
+        // update transform style on dragmove
+        box.style.transform = `translate(${x}px, ${y}px) rotate(${angle}rad)`;
+
+        console.log(angle);
+        socket.emit('updateImage', {
+          key: imageID.current,
+          x,
+          y,
+          rotation: angle,
+        });
+      },
+      onend: function (event) {
+        const box = event.target.parentElement;
+
+        // save the angle on dragend
+        box.setAttribute('data-angle', getDragAngle(event));
+      },
+    })
+
+    function getDragAngle(event) {
+      const box = event.target.parentElement;
+      const startAngle = parseFloat(box.getAttribute('data-angle')) || 0;
+      const center = {
+        x: parseFloat(box.getAttribute('data-center-x')) || 0,
+        y: parseFloat(box.getAttribute('data-center-y')) || 0
+      };
+      const angle = Math.atan2(center.y - event.clientY,
+        center.x - event.clientX);
+
+      return angle - startAngle;
+    };
+
 
     document.addEventListener('keydown', async (event) => {
 
@@ -110,7 +163,7 @@ function UseInteractJS(id) {
       // Update the image position and size based on the received data
       const target = elementRef.current;
       if (data.key === imageID.current) {
-        target.style.transform = `translate(${data.x}px, ${data.y}px)`;
+        target.style.transform = `translate(${data.x}px, ${data.y}px) rotate(${data.rotation}rad)`;
         target.style.width = data.width;
         target.style.height = data.height;
       }
@@ -119,6 +172,7 @@ function UseInteractJS(id) {
     // Clean up the interact instance and event listener when the component unmounts
     return () => {
       interactInstance.unset();
+      rotateInstance.unset();
       document.removeEventListener('keydown', () => {});
     };
   }, []);
