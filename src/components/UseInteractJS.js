@@ -7,15 +7,16 @@ function UseInteractJS(id) {
   const elementRef = useRef(null);
   const imageID = useRef(id);
   const lastClickedID = useRef(null);
+  const rotation = useRef(0);
 
   const socket = useContext(WebSocketContext);
 
   // Handles the draggable and resizable behavior of the image
   useEffect(() => {
 
-    elementRef.current = document.querySelector(`#${imageID.current}`);
+    const element = elementRef.current;
 
-    const interactInstance = interact('.resize-drag')
+    const interactInstance = interact(element)
     .draggable({
       // Customize the draggable behavior here if needed
       onmove: async (event) => {
@@ -35,6 +36,9 @@ function UseInteractJS(id) {
           key: imageID.current,
           x,
           y,
+          width: `${target.style.width}`,
+          height: `${target.style.height}`,
+          rotation: rotation.current
         });
       },
       modifiers: [
@@ -74,6 +78,7 @@ function UseInteractJS(id) {
             y,
             width: `${target.style.width}`,
             height: `${target.style.height}`,
+            rotation: rotation.current
           });
         }
       },
@@ -109,20 +114,19 @@ function UseInteractJS(id) {
       onmove: function (event) {
         const box = event.target.parentElement;
 
-        const x = (parseFloat(box.getAttribute('data-x')) || 0)
-        const y = (parseFloat(box.getAttribute('data-y')) || 0)
-
-        const angle = getDragAngle(event);
+        rotation.current = getDragAngle(event);
 
         // update transform style on dragmove
-        box.style.transform = `translate(${x}px, ${y}px) rotate(${angle}rad)`;
+        box.style.transform = `translate(${box.x}px, ${box.y}px) rotate(${rotation.current}rad)`;
 
-        console.log(angle);
+        console.log(rotation.current);
         socket.emit('updateImage', {
           key: imageID.current,
-          x,
-          y,
-          rotation: angle,
+          x: box.getAttribute('data-x'),
+          y: box.getAttribute('data-y'),
+          width: box.style.width,
+          height: box.style.height,
+          rotation: rotation.current,
         });
       },
       onend: function (event) {
@@ -150,13 +154,14 @@ function UseInteractJS(id) {
     document.addEventListener('keydown', async (event) => {
 
       const removeImage = async () => {
-        await axios.delete(`http://localhost:8080/images/${lastClickedID}`);
+        await axios.delete(`http://localhost:8080/images/${lastClickedID.current}`);
       };
 
       if(event.key === 'Backspace' && lastClickedID) {
-        setTimeout(removeImage, 500);
+        setTimeout(removeImage, 250);
       }
     });
+
 
     // Listen for updates from the server for all images
     socket.on('updatedImage', (data) => {
@@ -168,6 +173,16 @@ function UseInteractJS(id) {
         target.style.height = data.height;
       }
     });
+
+    // socket.on('rotatedImage', (data) => {
+    //   // Update the image position and size based on the received data
+    //   console.log(data);
+    //   const box = elementRef.current;
+    //   console.log(data.key === imageID.current);
+    //   if (data.key === imageID.current) {
+    //     box.style.transform = `translate(${box.x}px, ${box.y}px) rotate(${data.rotation}rad)`;
+    //   }
+    // });
 
     // Clean up the interact instance and event listener when the component unmounts
     return () => {
