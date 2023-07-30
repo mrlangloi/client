@@ -75,8 +75,8 @@ function UseInteractJS(id) {
             key: imageID.current,
             x,
             y,
-            width: `${target.style.width}`,
-            height: `${target.style.height}`,
+            width: target.style.width,
+            height: target.style.height,
             rotation: parseFloat(target.getAttribute('data-angle')) || 0,
           });
         }
@@ -98,15 +98,38 @@ function UseInteractJS(id) {
       // console.log(`Last clicked image ID: ${lastClickedID.current}`);
     });
 
-
-
-
+    // Listen for arrow key presses to change the image's z-index
     document.addEventListener('keydown', async (event) => {
+      const target = event.target;
+      const zIndex = target.style.zIndex;
 
+      const changeZIndex = (newZIndex) => {
+        socket.emit('updateImage', {
+          key: imageID.current,
+          x: target.getAttribute('data-x'),
+          y: target.getAttribute('data-y'),
+          width: target.style.width,
+          height: target.style.height,
+          zIndex: newZIndex,
+        });
+      };
+
+      // event.preventDefault(); prevents the page from scrolling up/down when the arrow keys are pressed
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        changeZIndex(parseInt(zIndex) + 1);
+      }
+      else if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        changeZIndex(parseInt(zIndex) - 1);
+      }
+    });
+
+    // Delete the image when the backspace key is pressed
+    document.addEventListener('keydown', async (event) => {
       const removeImage = async () => {
         await axios.delete(`http://localhost:8080/images/${lastClickedID.current}`);
       };
-
       if(event.key === 'Backspace' && lastClickedID) {
         setTimeout(removeImage, 250);
       }
@@ -119,8 +142,9 @@ function UseInteractJS(id) {
       const target = elementRef.current;
       if (data.key === imageID.current) {
         target.style.transform = `translate(${data.x}px, ${data.y}px) rotate(${data.rotation}rad)`;
-        target.style.width = data.width;
+        target.style.width = data.width ;
         target.style.height = data.height;
+        target.style.zIndex = data.zIndex;
       }
     });
 
