@@ -23,8 +23,10 @@ function UseInteractJS(id) {
         const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
         const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
+        const rotation = parseFloat(target.getAttribute('data-angle')) || 0;
+
         // Translate the element's position
-        target.style.transform = `translate(${x}px, ${y}px)`;
+        target.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}rad)`;
 
         // Store the updated position data for the next move event
         target.setAttribute('data-x', x);
@@ -35,9 +37,10 @@ function UseInteractJS(id) {
           key: imageID.current,
           x,
           y,
-          width: `${target.style.width}`,
-          height: `${target.style.height}`,
+          width: target.style.width,
+          height: target.style.height,
           rotation: parseFloat(target.getAttribute('data-angle')) || 0,
+          zIndex: target.style.zIndex,
         });
       },
       modifiers: [
@@ -64,8 +67,10 @@ function UseInteractJS(id) {
           // translate when resizing from top or left edges
           x += event.deltaRect.left;
           y += event.deltaRect.top;
+
+          const rotation = parseFloat(target.getAttribute('data-angle')) || 0;
   
-          target.style.transform = `translate(${x}px, ${y}px)`;
+          target.style.transform = `translate(${x}px, ${y}px) rotate(${rotation}rad)`;
   
           target.setAttribute('data-x', x);
           target.setAttribute('data-y', y);
@@ -78,6 +83,7 @@ function UseInteractJS(id) {
             width: target.style.width,
             height: target.style.height,
             rotation: parseFloat(target.getAttribute('data-angle')) || 0,
+            zIndex: target.style.zIndex,
           });
         }
       },
@@ -142,7 +148,7 @@ function UseInteractJS(id) {
       const target = elementRef.current;
       if (data.key === imageID.current) {
         target.style.transform = `translate(${data.x}px, ${data.y}px) rotate(${data.rotation}rad)`;
-        target.style.width = data.width ;
+        target.style.width = data.width;
         target.style.height = data.height;
         target.style.zIndex = data.zIndex;
       }
