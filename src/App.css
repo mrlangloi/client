@@ -32,7 +32,7 @@
 } */
 
 .imgDiv {
-  position: absolute;
+  position: relative;
   height: 250px;
   width: 250px;
   z-index: 2;
@@ -105,6 +105,25 @@
   border: 2px solid;
   border-radius: 8px;
   border-color: lightgray;
+}
+
+.rotation-handle {
+  height: 5%;
+  width: 5%;
+  padding: 3px 4px;
+  display: table;
+  position: absolute;
+  left: 45%;
+  right: 50%;
+  bottom: -25%;
+  background-color: #002ca3;
+  border-radius: 5px;
+  line-height: 1;
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+  cursor: move;
+  transform-origin: center center;
 }
 
 .uploadImageDiv {

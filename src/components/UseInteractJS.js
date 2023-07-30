@@ -1,3 +1,4 @@
+import axios from 'axios';
 import interact from 'interactjs';
 import { useEffect, useRef } from 'react';
 import socketIOClient from 'socket.io-client';
@@ -5,19 +6,20 @@ import socketIOClient from 'socket.io-client';
 function UseInteractJS(id) {
   const elementRef = useRef(null);
   const socketRef = useRef(null);
-  const imageID = useRef(null);
-  imageID.current = id;
+  const imageID = useRef(id);
 
+  var lastClickedID = '';
+
+  // Handles the draggable and resizable behavior of the image
   useEffect(() => {
     const element = elementRef.current;
-    
     
     // Connect to the server
     socketRef.current = socketIOClient('ws://localhost:8080');
 
     const interactInstance = interact(element).draggable({
       // Customize the draggable behavior here if needed
-      onmove: (event) => {
+      onmove: async (event) => {
         const target = event.target;
         const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
         const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
@@ -30,12 +32,14 @@ function UseInteractJS(id) {
         target.setAttribute('data-y', y);
         
         // Emit the updated image position and size to the server
-        socketRef.current.emit('updateImage', {
-          key: imageID.current,
+        // socketRef.current.emit('updateImage', {
+        //   key: imageID.current,
+        //   x,
+        //   y,
+        // });
+        await axios.put(`http://localhost:8080/images/${imageID.current}`, {
           x,
           y,
-          width: target.style.width,
-          height: target.style.height,
         });
       },
       modifiers: [
@@ -50,27 +54,33 @@ function UseInteractJS(id) {
       edges: { left: true, right: true, bottom: true, top: true },
   
       listeners: {
-        move (event) {
-          var target = event.target
-          var x = (parseFloat(target.getAttribute('data-x')) || 0)
-          var y = (parseFloat(target.getAttribute('data-y')) || 0)
+        async move (event) {
+          const target = event.target;
+          var x = (parseFloat(target.getAttribute('data-x')) || 0);
+          var y = (parseFloat(target.getAttribute('data-y')) || 0);
   
           // update the element's style
-          target.style.width = event.rect.width + 'px'
-          target.style.height = event.rect.height + 'px'
+          target.style.width = event.rect.width + 'px';
+          target.style.height = event.rect.height + 'px';
   
           // translate when resizing from top or left edges
-          x += event.deltaRect.left
-          y += event.deltaRect.top
+          x += event.deltaRect.left;
+          y += event.deltaRect.top;
   
-          target.style.transform = 'translate(' + x + 'px,' + y + 'px)'
+          target.style.transform = `translate(${x}px, ${y}px)`;
   
-          target.setAttribute('data-x', x)
-          target.setAttribute('data-y', y)
+          target.setAttribute('data-x', x);
+          target.setAttribute('data-y', y);
 
           // Emit the updated image position and size to the server
-          socketRef.current.emit('updateImage', {
-            key: imageID.current,
+          // socketRef.current.emit('updateImage', {
+          //   key: imageID.current,
+          //   x,
+          //   y,
+          //   width: `${target.style.width}`,
+          //   height: `${target.style.height}`,
+          // });
+          await axios.put(`http://localhost:8080/images/${imageID.current}`, {
             x,
             y,
             width: `${target.style.width}`,
@@ -90,6 +100,21 @@ function UseInteractJS(id) {
         })
       ],
 
+    }).on('mousedown', (event) => {
+      event.preventDefault();
+      lastClickedID = imageID.current;
+      console.log(`Last clicked image ID: ${lastClickedID}`);
+    });
+
+    document.addEventListener('keydown', async (event) => {
+
+      const removeImage = async () => {
+        await axios.delete(`http://localhost:8080/images/${lastClickedID}`);
+      };
+
+      if(event.key === 'Backspace' && lastClickedID) {
+        setTimeout(removeImage, 500);
+      }
     });
 
     // Listen for updates from the server for all images
@@ -107,8 +132,11 @@ function UseInteractJS(id) {
     return () => {
       interactInstance.unset();
       socketRef.current.disconnect();
+      document.removeEventListener('keydown', () => {});
     };
   }, []);
+
+
 
   return elementRef;
 };

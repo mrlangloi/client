@@ -27,7 +27,12 @@ function App() {
       console.log('Received a deleted image from the server:', data);
 
       setImages(prevImages => {
-        const newImages = prevImages.filter(image => image.id !== data.id);
+        if (prevImages.length === 1) {
+          return [];
+        }
+        console.log(`Deleting image with id ${data}`);
+        const newImages = prevImages.filter(image => image._id !== data);
+        console.log(`New images: ${newImages}`);
         return newImages;
       });
     });
@@ -39,10 +44,6 @@ function App() {
       socket.disconnect();
     }
   }, []);
-
-  const componentDidMount = async () => {
-
-  }
 
   // Get all images from the server
   const getImages = async () => {

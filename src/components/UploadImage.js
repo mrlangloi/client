@@ -1,18 +1,17 @@
 import { nanoid } from "nanoid";
 import React, { useState } from "react";
-import socketIOClient from 'socket.io-client';
+// import socketIOClient from 'socket.io-client';
+import axios from 'axios';
 
 function UploadImage() {
 
   const [imagePreview, setImagePreview] = useState(null);
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!imagePreview)
       return;
 
-    const socket = socketIOClient('ws://localhost:8080');
-    // socket.emit('uploadImage', image);
-    socket.emit('uploadImage', {
+    const image = {
       key: `image-${nanoid()}`,
       imageData: imagePreview,
       x: 0,
@@ -21,7 +20,27 @@ function UploadImage() {
       height: 128,
       rotation: 0,
       opacity: 1,
-    });
+    }
+
+    try {
+      await axios.post('http://localhost:8080/images', image);
+    }
+    catch (error) {
+      console.log(`Error with uploading image: ${error}`);
+    };
+    
+
+    // const socket = socketIOClient('ws://localhost:8080');
+    // socket.emit('uploadImage', {
+    //   key: `image-${nanoid()}`,
+    //   imageData: imagePreview,
+    //   x: 0,
+    //   y: 0,
+    //   width: 128,
+    //   height: 128,
+    //   rotation: 0,
+    //   opacity: 1,
+    // });
     setImagePreview(null);
   }
 
