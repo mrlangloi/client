@@ -1,21 +1,19 @@
 import axios from 'axios';
 import interact from 'interactjs';
-import { useEffect, useRef } from 'react';
-import socketIOClient from 'socket.io-client';
+import { useContext, useEffect, useRef } from 'react';
+import { WebSocketContext } from './WebSocketContext';
 
 function UseInteractJS(id) {
   const elementRef = useRef(null);
-  const socketRef = useRef(null);
   const imageID = useRef(id);
+
+  const socket = useContext(WebSocketContext);
 
   var lastClickedID = '';
 
   // Handles the draggable and resizable behavior of the image
   useEffect(() => {
     const element = elementRef.current;
-    
-    // Connect to the server
-    socketRef.current = socketIOClient('ws://localhost:8080');
 
     const interactInstance = interact(element).draggable({
       // Customize the draggable behavior here if needed
@@ -32,12 +30,8 @@ function UseInteractJS(id) {
         target.setAttribute('data-y', y);
         
         // Emit the updated image position and size to the server
-        // socketRef.current.emit('updateImage', {
-        //   key: imageID.current,
-        //   x,
-        //   y,
-        // });
-        await axios.put(`http://localhost:8080/images/${imageID.current}`, {
+        socket.emit('updateImage', {
+          key: imageID.current,
           x,
           y,
         });
@@ -73,14 +67,8 @@ function UseInteractJS(id) {
           target.setAttribute('data-y', y);
 
           // Emit the updated image position and size to the server
-          // socketRef.current.emit('updateImage', {
-          //   key: imageID.current,
-          //   x,
-          //   y,
-          //   width: `${target.style.width}`,
-          //   height: `${target.style.height}`,
-          // });
-          await axios.put(`http://localhost:8080/images/${imageID.current}`, {
+          socket.emit('updateImage', {
+            key: imageID.current,
             x,
             y,
             width: `${target.style.width}`,
@@ -118,7 +106,7 @@ function UseInteractJS(id) {
     });
 
     // Listen for updates from the server for all images
-    socketRef.current.on('updatedImage', (data) => {
+    socket.on('updatedImage', (data) => {
       // Update the image position and size based on the received data
       const target = elementRef.current;
       if (data.key === imageID.current) {
@@ -128,10 +116,9 @@ function UseInteractJS(id) {
       }
     });
 
-    // Clean up the interact instance and disconnect from server when the component unmounts
+    // Clean up the interact instance and event listener when the component unmounts
     return () => {
       interactInstance.unset();
-      socketRef.current.disconnect();
       document.removeEventListener('keydown', () => {});
     };
   }, []);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import socketIOClient from 'socket.io-client';
 
-const WebSocket = () => {
+const WebSocketTest = () => {
   const [message, setMessage] = useState('');
   const [receivedMessage, setReceivedMessage] = useState('');
 
@@ -41,4 +41,4 @@ const WebSocket = () => {
   );
 };
 
-export default WebSocket;
+export default WebSocketTest;
