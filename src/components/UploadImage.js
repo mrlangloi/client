@@ -33,7 +33,7 @@ function UploadImage() {
   }
 
   const handleImageSelect = (event) => {
-    console.log(event.target.files[0]);
+    // console.log(event.target.files[0]);
     const file = event.target.files[0];
     const reader = new FileReader();
 
