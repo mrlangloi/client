@@ -5,8 +5,7 @@ import { WebSocketContext } from './WebSocketContext';
 function UseRotate(id) {
   const rotationRef = useRef(null);
   const imageID = useRef(id);
-  const rotation = useRef(0);
-
+  
   const socket = useContext(WebSocketContext);
 
   useEffect(() => {
@@ -51,8 +50,7 @@ function UseRotate(id) {
       }).on('doubletap', (event) => {
         const box = event.target.parentElement;
 
-        rotation.current = 0;
-        box.setAttribute('data-angle', rotation.current);
+        box.setAttribute('data-angle', 0);
 
         socket.emit('updateImage', {
           key: imageID.current,
@@ -60,7 +58,7 @@ function UseRotate(id) {
           y: box.getAttribute('data-y'),
           width: box.style.width,
           height: box.style.height,
-          rotation: rotation.current,
+          rotation: 0,
         });
 
       });

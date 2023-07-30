@@ -7,7 +7,6 @@ function UseInteractJS(id) {
   const elementRef = useRef(null);
   const imageID = useRef(id);
   const lastClickedID = useRef(null);
-  const rotation = useRef(0);
 
   const socket = useContext(WebSocketContext);
 
@@ -96,7 +95,7 @@ function UseInteractJS(id) {
 
     }).on('mousedown', (event) => {
       lastClickedID.current = imageID.current;
-      console.log(`Last clicked image ID: ${lastClickedID.current}`);
+      // console.log(`Last clicked image ID: ${lastClickedID.current}`);
     });
 
 
@@ -130,7 +129,7 @@ function UseInteractJS(id) {
       interactInstance.unset();
       document.removeEventListener('keydown', () => {});
     };
-  }, []);
+  }, [socket]);
 
 
 
