@@ -11,6 +11,7 @@ function Canvas(props) {
         key={index}
         id={image.key}
         image={image.imageData}
+        index={index}
       />
     )
   });

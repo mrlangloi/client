@@ -4,7 +4,7 @@ import UseRotate from "./UseRotate";
 
 function Images(props) {
 
-  const { image, id }  = props;
+  const { image, id, index }  = props;
 
   const elementRef = UseInteractJS(id);
   const rotationRef = UseRotate(id);
@@ -18,6 +18,7 @@ function Images(props) {
         width: '250px',
         height: '250px',
         opacity: '1',
+        zIndex: {index},
       }}      
     >
       <img className='interactive-img' alt='' src={image} height='250' />
