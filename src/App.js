@@ -16,7 +16,7 @@ function App() {
   useEffect(() => {
 
     if (socket) {
-      // Listen for 'newImage' event from the server, update the images state with the new image
+      // Listen for 'uploadedImage' event from the server, update the images state with the new image
       socket.on('uploadedImage', (data) => {
         console.log('Received a new image from the server:', data);
 
