@@ -7,7 +7,7 @@ function UploadImage() {
 
   const [imagePreview, setImagePreview] = useState(null);
 
-  const socket = useContext(WebSocketContext);
+  const { socket } = useContext(WebSocketContext);
 
   const handleUpload = async () => {
     if (!imagePreview)
