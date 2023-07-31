@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import UseInteractJS from "./UseInteractJS";
-// import UseRotate from "./UseRotate";
+import UseRotate from "./UseRotate";
 
 function Images(props) {
 
@@ -18,7 +18,7 @@ function Images(props) {
   });
 
   const elementRef = UseInteractJS(imageProperties);
-  // const rotationRef = UseRotate(imageProperties);
+  const rotationRef = UseRotate(imageProperties);
 
   return (
     <div 
@@ -33,7 +33,7 @@ function Images(props) {
       }}      
     >
       <img className='interactive-img' alt='' src={imageData} height='250' />
-      {/* <div className='rotation-handle' ref={rotationRef}>A</div> */}
+      <div className='rotation-handle' ref={rotationRef}>@</div>
     </div>
   )
 }
