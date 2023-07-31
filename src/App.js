@@ -8,7 +8,7 @@ import { WebSocketContext } from './components/WebSocketContext';
 
 function App() {
 
-  const socket = useContext(WebSocketContext);
+  const { socket } = useContext(WebSocketContext);
 
   const [images, setImages] = useState([]);
 
@@ -25,33 +25,36 @@ function App() {
 
       // Listen for 'deletedImage' event from the server, remove the image from the images state
       socket.on('deletedImage', (data) => {
-        console.log('Received a deleted image from the server:', data);
+        console.log('Received a deleted image from the server: ' + data);
 
-        setImages(prevImages => {
-          if (prevImages.length === 1) {
-            return [];
-          }
-          console.log(`Deleting image with id ${data}`);
-          const newImages = prevImages.filter(image => image._id !== data);
-          console.log(`New images: ${newImages}`);
-          return newImages;
-        });
+        // setImages(prevImages => {
+        //   if (prevImages.length === 1) {
+        //     return [];
+        //   }
+        //   console.log(`Deleting image with id ${data}`);
+        //   const newImages = prevImages.filter(image => image.imageID !== data);
+        //   console.log(newImages);
+        //   return newImages;
+        // });
+        getImages();
       });
-
-
-      getImages();
     }
 
   }, [socket]);
+
+  // Get all images from the server on first render
+  useEffect(() => {
+    getImages();
+  }, []);
 
   // Get all images from the server
   const getImages = async () => {
     try {
       const url = 'http://localhost:8080/images';
       const res = await axios.get(url);
-
-      console.log(res.data);
+      
       setImages(res.data);
+      console.log(images);
     }
     catch (err) {
       console.log(err.message);
