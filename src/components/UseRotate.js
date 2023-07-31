@@ -1,12 +1,17 @@
+import axios from 'axios';
 import interact from 'interactjs';
 import { useContext, useEffect, useRef } from 'react';
 import { WebSocketContext } from './WebSocketContext';
 
-function UseRotate(id) {
+function UseRotate(imageProperties) {
   const rotationRef = useRef(null);
-  const imageID = useRef(id);
-  
-  const socket = useContext(WebSocketContext);
+
+  const { socket } = useContext(WebSocketContext);
+
+  // Update the image properties in the database
+  const handleImageUpdate = async () => {
+    await axios.put(`http://localhost:8080/images/${imageProperties.current.imageID}`, imageProperties.current);
+  };
 
   useEffect(() => {
     const rotation = rotationRef.current;
@@ -20,59 +25,36 @@ function UseRotate(id) {
           // store the center as the element has css `transform-origin: center center`
           box.setAttribute('data-center-x', rect.left + rect.width / 2);
           box.setAttribute('data-center-y', rect.top + rect.height / 2);
-          // get the angle of the element when the drag starts
-          box.setAttribute('data-angle', getDragAngle(event));
         },
         onmove: function (event) {
           const box = event.target.parentElement;
 
-          rotation.current = getDragAngle(event);
+          imageProperties.current.rotation = getDragAngle(event);
 
-          // update transform style on dragmove
-          box.style.transform = `translate(${box.x}px, ${box.y}px) rotate(${rotation.current}rad)`;
+          // Update transform style on dragmove
+          box.style.transform = `translate(${box.x}px, ${box.y}px) rotate(${imageProperties.current.rotation}rad)`;
 
-          console.log(rotation.current);
-          socket.emit('updateImage', {
-            key: imageID.current,
-            x: box.getAttribute('data-x'),
-            y: box.getAttribute('data-y'),
-            width: box.style.width,
-            height: box.style.height,
-            rotation: rotation.current,
-          });
+          socket.emit('updateImage', imageProperties.current);
         },
-        onend: function (event) {
-          const box = event.target.parentElement;
+        onend: handleImageUpdate,
 
-          // save the angle on dragend
-          box.setAttribute('data-angle', getDragAngle(event));
-        },
       }).on('doubletap', (event) => {
-        const box = event.target.parentElement;
-
-        box.setAttribute('data-angle', 0);
-
-        socket.emit('updateImage', {
-          key: imageID.current,
-          x: box.getAttribute('data-x'),
-          y: box.getAttribute('data-y'),
-          width: box.style.width,
-          height: box.style.height,
-          rotation: 0,
-        });
-
+        // When double-clicked on, reset the rotation to 0
+        event.preventDefault();
+        imageProperties.current.rotation = 0;
+        // Emit the updated image position, size, and rotation to the server
+        socket.emit('updateImage', imageProperties.current);
       });
-
 
     function getDragAngle(event) {
       const box = event.target.parentElement;
-      const startAngle = parseFloat(box.getAttribute('data-angle')) || 0;
+      const startAngle = 3 * Math.PI / 2;  // NOTE: more info at the bottom of this component
+      
       const center = {
         x: parseFloat(box.getAttribute('data-center-x')) || 0,
         y: parseFloat(box.getAttribute('data-center-y')) || 0
       };
-      const angle = Math.atan2(center.y - event.clientY,
-        center.x - event.clientX);
+      const angle = Math.atan2(center.y - event.clientY, center.x - event.clientX);
 
       return angle - startAngle;
     };
@@ -86,3 +68,9 @@ function UseRotate(id) {
 }
 
 export default UseRotate;
+
+/**
+ * Because the rotation handle div is at the 270 degree position of a circle,
+ * the rotation angle needs to be offset by 270 degrees (4.71238898038469 radians)
+ * otherwise the image will snap to a weird angle upon initial rotation.
+ */
