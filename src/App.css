@@ -32,7 +32,7 @@
 } */
 
 .imgDiv {
-  position: relative;
+  position: absolute;
   height: 250px;
   width: 250px;
   z-index: 2;
