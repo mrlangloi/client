@@ -9,9 +9,15 @@ function Canvas(props) {
     return (
       <Images
         key={index}
-        id={image.key}
-        image={image.imageData}
-        index={index}
+        imageID={image.imageID}
+        imageData={image.imageData}
+        x={image.x}
+        y={image.y}
+        width={image.width}
+        height={image.height}
+        rotation={image.rotation}
+        zIndex={image.zIndex}
+        opacity={image.opacity}
       />
     )
   });
