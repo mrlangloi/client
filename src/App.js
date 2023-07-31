@@ -17,7 +17,7 @@ function App() {
 
     if (socket) {
       // Listen for 'newImage' event from the server, update the images state with the new image
-      socket.on('newImage', (data) => {
+      socket.on('uploadedImage', (data) => {
         console.log('Received a new image from the server:', data);
 
         setImages(prevImages => [...prevImages, data]);
