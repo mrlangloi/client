@@ -10,7 +10,8 @@ function UseInteractJS(imageProperties) {
 
   // Update the image properties in the database
   const handleImageUpdate = async () => {
-    await axios.put(`http://localhost:8080/images/${imageProperties.current.imageID}`, imageProperties.current);
+    await axios.put(`https://${process.env.REACT_APP_BACKEND_URL}/images/${imageProperties.current.imageID}`, imageProperties.current);
+    // await axios.put(`http://localhost:8080/images/${imageProperties.current.imageID}`, imageProperties.current);
   };
 
   // Handles the draggable and resizable behavior of the image
@@ -90,52 +91,50 @@ function UseInteractJS(imageProperties) {
       event.preventDefault();
     });
 
-    element.addEventListener('mouseup', (event) => {
-      event.preventDefault(); 
+    // deprecated 
+    // element.addEventListener('mouseup', (event) => {
+    //   event.preventDefault(); 
 
-      if (event.currentTarget === element) {
+    //   if (event.currentTarget === element) {
 
-        
-
-        if (event.button === 0) { // left click
-          // Placeholder if I ever want to add a left-click interactive
-        }
-        else if (event.button === 1) { // middle click
-          // Placeholder if I ever want to add a middle-click interactive
-        }
-        else if (event.button === 2) { // right click
-          const removeImage = async (id) => {
-            await axios.delete(`http://localhost:8080/images/${lastClickedID}`);
-            socket.emit('deleteImage', lastClickedID);
-          };
-          console.log(`Removing image with ID ${lastClickedID}`);
-          setTimeout(removeImage, 250);
-        }
-      }
-    })
-
+    //     if (event.button === 0) { // left click
+    //       // Placeholder if I ever want to add a left-click interactive
+    //     }
+    //     else if (event.button === 1) { // middle click
+    //       // Placeholder if I ever want to add a middle-click interactive
+    //     }
+    //     else if (event.button === 2) { // right click
+    //       const removeImage = async (id) => {
+    //         await axios.delete(`http://localhost:8080/images/${imageProperties.current.imageID}`, imageProperties.current);
+    //         socket.emit('deleteImage', lastClickedID);
+    //       };
+    //       console.log(`Removing image with ID ${lastClickedID}`);
+    //       setTimeout(removeImage, 250);
+    //     }
+    //   }
+    // })
     // // Listen for arrow key presses to change the image's z-index
-    element.addEventListener('keydown', (event) => {
-      event.stopPropagation();
+    // element.addEventListener('keydown', (event) => {
+    //   event.stopPropagation();
 
-      const changeZIndex = () => {
-        socket.emit('updateImage', imageProperties.current);
-        handleImageUpdate();
-      };
+    //   const changeZIndex = () => {
+    //     socket.emit('updateImage', imageProperties.current);
+    //     handleImageUpdate();
+    //   };
 
-      if (event.key === '=' && lastClickedID == imageProperties.current.imageID) {
-        event.preventDefault();
-        imageProperties.current.zIndex += 1;
-        setTimeout(changeZIndex, 100);
-        console.log('Current z-index: ' + imageProperties.current.zIndex);
-      }
-      else if (event.key === '-' && lastClickedID == imageProperties.current.imageID) {
-        event.preventDefault();
-        imageProperties.current.zIndex -= (imageProperties.current.zIndex === 2 ? 0 : 1);
-        setTimeout(changeZIndex, 100);
-        console.log('Current z-index: ' + imageProperties.current.zIndex);
-      }
-    });
+    //   if (event.key === '=' && lastClickedID == imageProperties.current.imageID) {
+    //     event.preventDefault();
+    //     imageProperties.current.zIndex += 1;
+    //     setTimeout(changeZIndex, 100);
+    //     console.log('Current z-index: ' + imageProperties.current.zIndex);
+    //   }
+    //   else if (event.key === '-' && lastClickedID == imageProperties.current.imageID) {
+    //     event.preventDefault();
+    //     imageProperties.current.zIndex -= (imageProperties.current.zIndex === 2 ? 0 : 1);
+    //     setTimeout(changeZIndex, 100);
+    //     console.log('Current z-index: ' + imageProperties.current.zIndex);
+    //   }
+    // });
 
     // Listen for updates from the server for all images
     socket.on('updatedImage', (data) => {
@@ -172,8 +171,8 @@ function UseInteractJS(imageProperties) {
     return () => {
       interactInstance.unset();
       element.removeEventListener('contextmenu', () => { });
-      element.removeEventListener('click', () => { });
-      element.removeEventListener('keydown', () => { });
+      // element.removeEventListener('click', () => { });
+      // element.removeEventListener('keydown', () => { });
     };
   }, []);
 

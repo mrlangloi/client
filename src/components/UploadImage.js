@@ -28,7 +28,9 @@ function UploadImage() {
     }
 
     try {
-      await axios.post('http://localhost:8080/images', image);
+      await axios.post(`https://${process.env.REACT_APP_BACKEND_URL}/images`, image);
+      socket.emit('uploadImage', image);
+      // await axios.post('http://localhost:8080/images', image);
       socket.emit('uploadImage', image);
     }
     catch (error) {

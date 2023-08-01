@@ -53,7 +53,9 @@ function App() {
   // Get all images from the server
   const getImages = async () => {
     try {
-      const url = 'http://localhost:8080/images';
+      const url = `https://${process.env.REACT_APP_BACKEND_URL}/images`;
+      // const url = 'http://localhost:8080/images';
+      socket.emit('uploadImage', image);
       const res = await axios.get(url);
       
       setImages(res.data);

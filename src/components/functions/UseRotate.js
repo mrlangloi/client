@@ -10,7 +10,8 @@ function UseRotate(imageProperties) {
 
   // Update the image properties in the database
   const handleImageUpdate = async () => {
-    await axios.put(`http://localhost:8080/images/${imageProperties.current.imageID}`, imageProperties.current);
+    await axios.put(`https://${process.env.REACT_APP_BACKEND_URL}/images/${imageProperties.current.imageID}`, imageProperties.current);
+    // await axios.put(`http://localhost:8080/images/${imageProperties.current.imageID}`, imageProperties.current);
   };
 
   useEffect(() => {
