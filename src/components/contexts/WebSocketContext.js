@@ -5,7 +5,7 @@ const WebSocketContext = createContext();
 
 const WebSocketProvider = ({ children }) => {
   
-  const socket = socketIOClient('ws://localhost:8080');
+  const socket = socketIOClient(`ws://${process.env.IP_ADDRESS}:${process.env.PORT}}`);
 
   // const lastClickedID = useRef(null);
   const [lastClickedID, setLastClickedID] = useState(null);
