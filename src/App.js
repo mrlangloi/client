@@ -2,8 +2,8 @@ import axios from 'axios';
 import React, { useContext, useEffect, useState } from 'react';
 import './App.css';
 import Canvas from './components/Canvas';
+import Footer from './components/Footer';
 import TwitchStream from './components/TwitchStream';
-import UploadImage from './components/UploadImage';
 import { WebSocketContext } from './components/contexts/WebSocketContext';
 
 function App() {
@@ -69,7 +69,7 @@ function App() {
         <Canvas images={images} setImages={setImages} />
         <TwitchStream />
       </div>
-      <UploadImage />
+      <Footer />
     </div>
   );
 }
