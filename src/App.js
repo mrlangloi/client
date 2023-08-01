@@ -55,7 +55,6 @@ function App() {
     try {
       const url = `https://${process.env.REACT_APP_BACKEND_URL}/images`;
       // const url = 'http://localhost:8080/images';
-      socket.emit('uploadImage', image);
       const res = await axios.get(url);
       
       setImages(res.data);
