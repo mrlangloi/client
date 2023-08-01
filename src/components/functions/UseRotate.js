@@ -1,7 +1,7 @@
 import axios from 'axios';
 import interact from 'interactjs';
 import { useContext, useEffect, useRef } from 'react';
-import { WebSocketContext } from './WebSocketContext';
+import { WebSocketContext } from '../contexts/WebSocketContext';
 
 function UseRotate(imageProperties) {
   const rotationRef = useRef(null);
@@ -32,7 +32,7 @@ function UseRotate(imageProperties) {
           imageProperties.current.rotation = getDragAngle(event);
 
           // Update transform style on dragmove
-          box.style.transform = `translate(${box.x}px, ${box.y}px) rotate(${imageProperties.current.rotation}rad)`;
+          box.style.transform = `translate(${box.x}px, ${box.y}px) rotate(${imageProperties.current.rotation}rad) scale(${imageProperties.current.scaleX}, ${imageProperties.current.scaleY})`;
 
           socket.emit('updateImage', imageProperties.current);
         },

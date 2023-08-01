@@ -1,12 +1,12 @@
 import axios from 'axios';
 import interact from 'interactjs';
 import { useContext, useEffect, useRef } from 'react';
-import { WebSocketContext } from './WebSocketContext';
+import { WebSocketContext } from '../contexts/WebSocketContext';
 
 function UseInteractJS(imageProperties) {
   const elementRef = useRef(null);
 
-  const { socket, lastClickedID } = useContext(WebSocketContext);
+  const { socket, lastClickedID, setLastClickedID } = useContext(WebSocketContext);
 
   // Update the image properties in the database
   const handleImageUpdate = async () => {
@@ -21,6 +21,10 @@ function UseInteractJS(imageProperties) {
     const interactInstance = interact(element)
       .draggable({
         // Customize the draggable behavior here if needed
+        onstart: (event) => {
+          // Set the last clicked image ID to this image's ID
+          setLastClickedID(imageProperties.current.imageID);
+        },
         onmove: async (event) => {
 
           const target = event.target;
@@ -80,16 +84,38 @@ function UseInteractJS(imageProperties) {
         onend: handleImageUpdate,
 
       });
+
+    // Prevent the default right-click menu from appearing when right-clicking on the image
+    element.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
+    });
+
     element.addEventListener('mouseup', (event) => {
-      event.stopPropagation();
+      event.preventDefault(); 
+
       if (event.currentTarget === element) {
-        lastClickedID.current = imageProperties.current.imageID;
-        console.log(`Last clicked image ID: ${lastClickedID.current}`);
+
+        
+
+        if (event.button === 0) { // left click
+          // Placeholder if I ever want to add a left-click interactive
+        }
+        else if (event.button === 1) { // middle click
+          // Placeholder if I ever want to add a middle-click interactive
+        }
+        else if (event.button === 2) { // right click
+          const removeImage = async (id) => {
+            await axios.delete(`http://localhost:8080/images/${lastClickedID}`);
+            socket.emit('deleteImage', lastClickedID);
+          };
+          console.log(`Removing image with ID ${lastClickedID}`);
+          setTimeout(removeImage, 250);
+        }
       }
     })
 
     // // Listen for arrow key presses to change the image's z-index
-    document.addEventListener('keydown', (event) => {
+    element.addEventListener('keydown', (event) => {
       event.stopPropagation();
 
       const changeZIndex = () => {
@@ -97,23 +123,14 @@ function UseInteractJS(imageProperties) {
         handleImageUpdate();
       };
 
-      const removeImage = async () => {
-        await axios.delete(`http://localhost:8080/images/${lastClickedID.current}`);
-        socket.emit('deleteImage', lastClickedID.current);
-      };
-
-      if (event.key === 'Backspace' && lastClickedID.current === imageProperties.current.imageID) {
-        event.preventDefault(); // Prevent the browser from going back to the previous page
-        setTimeout(removeImage, 250);
-      }
-      else if (event.key === 'ArrowUp' && lastClickedID.current === imageProperties.current.imageID) {
-        event.preventDefault(); // Prevent the browser from scrolling up
+      if (event.key === '=' && lastClickedID == imageProperties.current.imageID) {
+        event.preventDefault();
         imageProperties.current.zIndex += 1;
         setTimeout(changeZIndex, 100);
         console.log('Current z-index: ' + imageProperties.current.zIndex);
       }
-      else if (event.key === 'ArrowDown' && lastClickedID.current === imageProperties.current.imageID) {
-        event.preventDefault(); // Prevent the browser from scrolling down
+      else if (event.key === '-' && lastClickedID == imageProperties.current.imageID) {
+        event.preventDefault();
         imageProperties.current.zIndex -= (imageProperties.current.zIndex === 2 ? 0 : 1);
         setTimeout(changeZIndex, 100);
         console.log('Current z-index: ' + imageProperties.current.zIndex);
@@ -122,33 +139,47 @@ function UseInteractJS(imageProperties) {
 
     // Listen for updates from the server for all images
     socket.on('updatedImage', (data) => {
-      // Update the image position, size, and rotation based on the received data
+      // Update the image properties if the image ID matches
       const target = elementRef.current;
       if (data.imageID === imageProperties.current.imageID) {
         target.style.transform = `translate(${data.x}px, ${data.y}px) rotate(${data.rotation}rad)`;
         target.style.width = data.width + 'px';
         target.style.height = data.height + 'px';
         target.style.zIndex = data.zIndex;
+        target.style.scaleX = data.scaleX;
+        target.style.scaleY = data.scaleY;
         target.style.opacity = data.opacity;
 
         // Update the image data
-        imageProperties.current.x = data.x;
-        imageProperties.current.y = data.y;
-        imageProperties.current.rotation = data.rotation;
-        imageProperties.current.width = data.width;
-        imageProperties.current.height = data.height;
-        imageProperties.current.zIndex = data.zIndex;
-        imageProperties.current.opacity = data.opacity;
+        imageProperties.current = {
+          imageID: data.imageID,
+          x: data.x,
+          y: data.y,
+          width: data.width,
+          height: data.height,
+          rotation: data.rotation,
+          zIndex: data.zIndex,
+          scaleX: data.scaleX,
+          scaleY: data.scaleY,
+          opacity: data.opacity,
+        }
       }
     });
+
+
 
     // Clean up the interact instance and event listener when the component unmounts
     return () => {
       interactInstance.unset();
+      element.removeEventListener('contextmenu', () => { });
       element.removeEventListener('click', () => { });
-      document.removeEventListener('keydown', () => { });
+      element.removeEventListener('keydown', () => { });
     };
   }, []);
+
+  useEffect(() => {
+    console.log(`Last selected image ID: ${lastClickedID}`);
+  }, [lastClickedID]);
 
 
   return elementRef;
