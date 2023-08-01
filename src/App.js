@@ -4,7 +4,7 @@ import './App.css';
 import Canvas from './components/Canvas';
 import TwitchStream from './components/TwitchStream';
 import UploadImage from './components/UploadImage';
-import { WebSocketContext } from './components/WebSocketContext';
+import { WebSocketContext } from './components/contexts/WebSocketContext';
 
 function App() {
 
@@ -27,16 +27,15 @@ function App() {
       socket.on('deletedImage', (data) => {
         console.log('Received a deleted image from the server: ' + data);
 
-        // setImages(prevImages => {
-        //   if (prevImages.length === 1) {
-        //     return [];
-        //   }
-        //   console.log(`Deleting image with id ${data}`);
-        //   const newImages = prevImages.filter(image => image.imageID !== data);
-        //   console.log(newImages);
-        //   return newImages;
-        // });
-        getImages();
+        setImages(prevImages => {
+          if (prevImages.length === 1) {
+            return [];
+          }
+          console.log(`Deleting image with id ${data}`);
+          const newImages = prevImages.filter(image => image.imageID !== data);
+          console.log(newImages);
+          return newImages;
+        });
       });
     }
 
@@ -47,6 +46,10 @@ function App() {
     getImages();
   }, []);
 
+  useEffect(() => {
+    console.log(images);
+  }, [images]);
+
   // Get all images from the server
   const getImages = async () => {
     try {
@@ -54,7 +57,6 @@ function App() {
       const res = await axios.get(url);
       
       setImages(res.data);
-      console.log(images);
     }
     catch (err) {
       console.log(err.message);
