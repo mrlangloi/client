@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import './App.css';
 import Canvas from './components/Canvas';
 import Footer from './components/Footer';
-import TwitchStream from './components/TwitchStream';
+import TwitchStream from './components/TwitchStreamEmbed';
 import { WebSocketContext } from './components/contexts/WebSocketContext';
 
 function App() {
