@@ -4,9 +4,8 @@ import socketIOClient from 'socket.io-client';
 const WebSocketContext = createContext();
 
 const WebSocketProvider = ({ children }) => {
-  
-  const socket = socketIOClient(`ws://localhost:8080`);
-  // const socket = socketIOClient(`ws://${process.env.IP_ADDRESS}:${process.env.PORT}`);
+
+  const socket = socketIOClient(`${process.env.REACT_APP_BACKEND_URL}`);
 
   // const lastClickedID = useRef(null);
   const [lastClickedID, setLastClickedID] = useState(null);
