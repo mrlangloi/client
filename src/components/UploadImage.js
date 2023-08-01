@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { nanoid } from "nanoid";
 import React, { useContext, useState } from "react";
-import { WebSocketContext } from "./WebSocketContext";
+import { WebSocketContext } from "./contexts/WebSocketContext";
 
 function UploadImage() {
 
@@ -22,6 +22,8 @@ function UploadImage() {
       height: 250,
       rotation: 0,
       zIndex: 2,
+      scaleX: 1,
+      scaleY: 1,
       opacity: 1,
     }
 

@@ -17,6 +17,8 @@ function Canvas(props) {
         height={image.height}
         rotation={image.rotation}
         zIndex={image.zIndex + index}
+        scaleX={image.scaleX}
+        scaleY={image.scaleY}
         opacity={image.opacity}
       />
     )
